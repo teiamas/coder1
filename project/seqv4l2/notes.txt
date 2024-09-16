@@ -1,0 +1,44 @@
+# in order to enable gpu debugging I had to run the below command
+# if not I got:
+# fatal: The CUDA driver initialization failed. (error code = CUDBG_ERROR_INITIALIZATION_FAILURE(0x14)
+sudo chmod a+rw /dev/nvhost-dbg-gpu
+ sudo usermod -a -G debug $USER
+
+# To optimize for Jetson nano the onnx parameters I  run the below command 
+trtexec --onnx=time_net.onnx --saveEngine=time_net.trt
+
+# to have the trtexec I had to build 
+cd /usr/src/tensorrt/samples/trtexec
+    sudo make
+    geany ~/.bashrc
+        #added the below line
+        export PATH=/usr/src/tensorrt/bin:$PATH
+    #reload bashrc
+    source ~/.bashrc
+
+#to compile the CNN I added the bootlin toolchain
+# https://docs.nvidia.com/jetson/archives/r35.3.1/DeveloperGuide/text/AT/JetsonLinuxToolchain.html
+# NVIDIA ® specifies the Bootlin gcc 9.3.0 2020.08-1 aarch64 toolchain for:
+# Cross-compiling applications to run on this release of NVIDIA ® Jetson™ Linux.
+# Cross-compiling code in the current-release Jetson Linux source.
+# This topic describes how to obtain the toolchain.
+# Toolchain Information 
+# The toolchain contains the following components:
+# GCC version: 9.3.0
+# Binutils version: 2.33.1
+# Glibc version: 2.31
+# 
+# Downloading the Toolchain 
+# Download the Bootlin toolchain binaries from the NVIDIA Jetson Linux home page.
+# 
+# Extracting the Toolchain 
+# To extract the toolchain, enter these commands:
+# 
+# $ mkdir $HOME/l4t-gcc
+# $ cd $HOME/l4t-gcc
+# $ tar xf 
+# 
+# Setting the CROSS_COMPILE Environment Variable 
+# Many build systems require you to set environment variable CROSS_COMPILE to point at the toolchain to use. To set CROSS_COMPILE for the aarch64 toolchain, enter the command:
+# 
+# $ export CROSS_COMPILE=$HOME/l4t-gcc/bin/aarch64-buildroot-linux-gnu

@@ -1,2 +1,13 @@
 /train_CNN/results.csv
 /train_CNN/time_net.pth
+/project/seqv4l2/time_net.onnx
+/project/seqv4l2/time_net.trt
+/project/Common/data/Rocks_512x512_8u_Gray.raw
+/project/Common/data/CT_skull_512x512_8u.raw
+/project/Common/data/CT_skull_512x512_8u_Gray.raw
+/project/Common/data/lena_512x512_8u.raw
+/project/Common/data/Lena_512x512_8u_Gray.raw
+/project/Common/data/PCB_1280x720_8u.raw
+/project/Common/data/PCB_METAL_509x335_8u.raw
+/project/Common/data/PCB2_1024x683_8u.raw
+/train_CNN/time_net.onnx

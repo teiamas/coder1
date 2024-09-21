@@ -56,6 +56,6 @@ def main(model_path, input_dir, output_csv):
 
 # Example usage
 model_path = 'time_net.onnx'
-input_dir = './dataset/frames/00_18_0'
+input_dir = './dataset/frames/00_31_8'
 output_csv = 'results.csv'
 main(model_path, input_dir, output_csv)

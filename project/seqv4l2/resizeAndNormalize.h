@@ -8,7 +8,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    void normalize(const Npp8u* src, float* dst, int width, int height);
+    void normalize(const Npp8u* src, float* dst, int width, int height, cudaStream_t resizeStream);
 #ifdef __cplusplus
 }
 #endif

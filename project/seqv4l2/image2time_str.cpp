@@ -43,6 +43,8 @@ public:
 
 Logger gLogger;
 
+static cudaStream_t cnnStream;
+
 using namespace nvinfer1;
 using namespace nvonnxparser;
 
@@ -80,6 +82,7 @@ extern "C" {
     void engage_CNN(int width, int height, Npp8u* d_lap_img, char* csv_fname) {
         inputWidth = width;
         inputHeight = height;
+        cudaStreamCreate(&cnnStream);
         runtime = createInferRuntime(gLogger);
         std::ifstream file("time_net.trt", std::ios::binary);
         if (!file) {
@@ -132,6 +135,7 @@ extern "C" {
 
 
     void disengage_CNN() {
+        cudaStreamDestroy(cnnStream);
         if (context) context->destroy();
         if (engine) engine->destroy();
         if (runtime) runtime->destroy();
@@ -150,14 +154,17 @@ extern "C" {
     void runInference() {
     
 
-        normalize(/*src*/d_lapalced_img,/*dst*/ reinterpret_cast<float*>(CNN_buffers[inputIndex]),/*width*/ inputWidth,/* height */ inputHeight);
+        normalize(/*src*/d_lapalced_img,/*dst*/ reinterpret_cast<float*>(CNN_buffers[inputIndex]),
+                  /*width*/ inputWidth,/* height */ inputHeight, /*resizeStream*/ cnnStream);
         if( !context->executeV2(CNN_buffers) ){
             std::cerr << "Failure on V2 execution" << std::endl;
             exit(-1);
         } 
-        CUDA_CHECK(cudaMemcpy(h_minutes, CNN_buffers[minutesIndex], 60 * sizeof(float), cudaMemcpyDeviceToHost));
-        CUDA_CHECK(cudaMemcpy(h_seconds, CNN_buffers[secondsIndex], 60 * sizeof(float), cudaMemcpyDeviceToHost));
-        CUDA_CHECK(cudaMemcpy(h_deciseconds, CNN_buffers[decisecondsIndex], 10 * sizeof(float), cudaMemcpyDeviceToHost));
+        CUDA_CHECK(cudaMemcpyAsync(h_minutes    , CNN_buffers[minutesIndex]    , 60 * sizeof(float), cudaMemcpyDeviceToHost, cnnStream););
+        CUDA_CHECK(cudaMemcpyAsync(h_seconds    , CNN_buffers[secondsIndex]    , 60 * sizeof(float), cudaMemcpyDeviceToHost, cnnStream));
+        CUDA_CHECK(cudaMemcpyAsync(h_deciseconds, CNN_buffers[decisecondsIndex], 10 * sizeof(float), cudaMemcpyDeviceToHost, cnnStream));
+        cudaStreamSynchronize(cnnStream);
+
         // Find the digit with the highest probability
         int predicted_minutes = std::distance(h_minutes, std::max_element(h_minutes, h_minutes + 60));
         int predicted_seconds = std::distance(h_seconds, std::max_element(h_seconds, h_seconds + 60));

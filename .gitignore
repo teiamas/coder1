@@ -11,3 +11,9 @@
 /project/Common/data/PCB_METAL_509x335_8u.raw
 /project/Common/data/PCB2_1024x683_8u.raw
 /train_CNN/time_net.onnx
+/bin/aarch64/linux/release/frames
+bin/aarch64/linux/release/out_data.csv
+bin/aarch64/linux/release/time_net.onnx
+bin/aarch64/linux/release/time_net.trt
+bin/aarch64/linux/release/seqv4l2
+project/seqv4l2/*.o

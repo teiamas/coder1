@@ -606,8 +606,8 @@ struct save_frame_t* search_max_frame_diff(unsigned int size ){
         //update current module ring_size
         ring_index = (ring_buffer.head_idx + i)% ring_buffer.ring_size;
         curr_frame_ptr = ring_buffer.save_frame + ring_index;
-        //curr_diff = do_frame_diff(curr_frame_ptr->frame, prev_frame_ptr->frame);
-        curr_diff = diff_image(ring_index, size, curr_frame_ptr->frame, prev_frame_ptr->frame);
+        curr_diff = do_frame_diff(curr_frame_ptr->frame, prev_frame_ptr->frame);
+        //curr_diff = diff_image(ring_index, size, curr_frame_ptr->frame, prev_frame_ptr->frame);
         //syslog(LOG_CRIT, "S2 Diff new_fcnt=%s olf_fcnt=%s br.index=%d, Diff_Value=%d\n",
         //                  curr_frame_ptr->identifier_str,
         //                  prev_frame_ptr->identifier_str,

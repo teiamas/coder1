@@ -15,7 +15,7 @@ static int grayImagesize;                // gray image sizes in pixels
 static NppiSize oSizeROI;                // region of interest in pixel
 static dim3 blockSize(16, 16);           // GPU's block size 
 static dim3 gridSize;                    // GPU's Grid size
-
+static cudaStream_t laplacianStream;     // stream for the laplacian elaboration
 
 
 /// @brief displays the cuda error message and exits
@@ -82,6 +82,7 @@ void engage_laplacian(int pheight, int pwidth){
     my_checkCudaErrors( cudaMalloc((void**)&d_greyImage, grayImagesize),"Allocating grey data in the GPU");
     my_checkCudaErrors( cudaMalloc((void**)&d_laplImage, grayImagesize),"Allocating grey data in the GPU");
 
+    my_checkCudaErrors( cudaStreamCreate(&laplacianStream),"Creating GPU stream for GPU elaboration");
     lapalce_engaged = 1;
 }
 
@@ -92,6 +93,8 @@ void disengage_laplacian(void){
     my_checkCudaErrors(cudaFree(d_yuyvImage), "freeing yuyv data memory");
     my_checkCudaErrors(cudaFree(d_greyImage), "freeing grey data memory");
     my_checkCudaErrors(cudaFree(d_laplImage), "freeing grey data memory");
+    my_checkCudaErrors(cudaStreamDestroy(laplacianStream), "Destroing the stream for the laplacian elaboration");
+    
 }
 
 /// @brief applies the laplacian over the original image highlighting the edges  
@@ -111,10 +114,10 @@ void calc_laplacian(
         exit(-1);
     }
     // Assuming you have an input image 'oDeviceSrc' and an output image 'oDeviceDst'
-    my_checkCudaErrors(cudaMemcpy(d_yuyvImage, h_yuyvImage, yuyvImagesize, cudaMemcpyHostToDevice),"Copying yuyv data 2 device");
-    yuyv2gray<<<gridSize, blockSize>>>(d_yuyvImage,d_greyImage, numElements);
+    my_checkCudaErrors(cudaMemcpyAsync(d_yuyvImage, h_yuyvImage, yuyvImagesize, cudaMemcpyHostToDevice, laplacianStream),"Copying yuyv data 2 device");
+    yuyv2gray<<<gridSize, blockSize, 0, laplacianStream>>>(d_yuyvImage, d_greyImage, numElements);
     //my_checkCudaErrors(cudaGetLastError(),"launching the conv2gray kernel");
-    my_checkCudaErrors(cudaDeviceSynchronize(),"one task has failed in the conv2gray kernel");;
+    my_checkCudaErrors(cudaStreamSynchronize(laplacianStream),"one task has failed in the conv2gray kernel");;
     //my_checkCudaErrors(cudaMemcpy(h_greyImage, d_greyImage, grayImagesize * sizeof(char), cudaMemcpyDeviceToHost),"copying grey data to host");
 
     NppStatus npps =
@@ -130,8 +133,8 @@ void calc_laplacian(
         printf("Error in NPP filtering\n");
         exit(-1);
     }   
-    my_checkCudaErrors(cudaMemcpy(h_laplImage, d_laplImage, grayImagesize, cudaMemcpyDeviceToHost),"copying grey data to host");
-
+    my_checkCudaErrors(cudaMemcpyAsync(h_laplImage, d_laplImage, grayImagesize, cudaMemcpyDeviceToHost, laplacianStream),"copying grey data to host");
+    cudaStreamSynchronize(laplacianStream);
 }
 
 /// @brief returns the DEVICE address of the image filtered with lapalcian

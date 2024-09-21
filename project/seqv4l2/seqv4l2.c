@@ -116,8 +116,8 @@ void main(int argc, char *argv[])
     pid_t mainpid;
 
     printf("Initialize GPU\n");
-    //printf("Initialize frame diff\n");
-    //engage_frame_diff( HRES * VRES );
+    printf("Initialize frame diff\n");
+    engage_frame_diff( HRES * VRES );
     printf("Initialize Laplacian\n");
     engage_laplacian(VRES/*pheight*/,HRES/*pwidth*/);
 
@@ -321,8 +321,8 @@ void main(int argc, char *argv[])
    printf("Disengage laplacian\n");
    disengage_laplacian();
    printf("Disengage CNN\n");
-//   disengage_CNN();
-//   printf("Disengage frame diff\n");
+   disengage_CNN();
+   printf("Disengage frame diff\n");
    disengage_frame_diff();
    printf("\nTEST COMPLETE\n");
 }

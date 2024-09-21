@@ -49,12 +49,17 @@ __global__ void convertToFloat(float *dst, const Npp8u *src, int width, int heig
 
 // Launch the kernel
 
-void normalize(const Npp8u* src, float* dst, int width, int height) {
+void normalize(const Npp8u* src, float* dst, int width, int height, cudaStream_t resizeStream) {
+    if( resizeStream == NULL ) {
+        std::cerr << "resizeStream is NULL" << std::endl;
+        exit(-1);
+    }
     dim3 blockSize(16, 16); // 2D block size
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, 
                   (height + blockSize.y - 1) / blockSize.y); // 2D grid size
     
-    convertToFloat<<<gridSize, blockSize>>>(dst, src, width, height);
+    convertToFloat<<<gridSize, blockSize, 0, resizeStream>>>(dst, src, width, height);
+
 
     // Check for errors during kernel launch
     cudaError_t err = cudaGetLastError();
@@ -63,7 +68,7 @@ void normalize(const Npp8u* src, float* dst, int width, int height) {
     }
 
     // Synchronize and check for errors after kernel execution
-    cudaDeviceSynchronize();
+    cudaStreamSynchronize(resizeStream);
     err = cudaGetLastError();
     if (err != cudaSuccess) {
         std::cerr << "2. CUDA error after synchronization: " << cudaGetErrorString(err) << std::endl;

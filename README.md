@@ -1,27 +1,28 @@
-**Brief**: this project contains the code for an application that acquires the images of a stopwatch synchronizes to it, saves an images of each stopwatch tick every thenth of a second and applyies a NPP Laplacian filter  to it and a CNN to recongnize the time and save it.
+**Brief**: this project contains the code for an application that acquires the images of a stopwatch synchronizes to it, saves an images of each stopwatch tick every thenth of a second and applyies a NPP Laplacian filter  to it and a CNN to recongnize the time and save it in text format.
 
 **Credits**: this project has been derived from the example Nvidia project boxFilterNPP provided in the Coursera "CUDA at scale for enterprise"  and from material supplied in the Coursera course of Real Time Systems by Sam Siewert.
 
 **Minimum spec**: SM 2.0, a UVC camera with at least 30 frames/sec, a Jetson Nano for the cuBLas and cuDNN, and a PC for the CNN Training.
 
-**Input**: the images acquired by a Camera filming a stopwatch.
+**Input**: the images acquired by a Camera filming a stopwatch.<br>
+
 **Output**: ppm images of the stopwatch synchornized at each tick of a tenth of second (ppm format), their elaboration with a Lapacian filter saved in pgm format and a csv file with the image name and the time displayed in the image.
 
-**Directory structure**:
-project root<br>
-    - **bin/aarch64/linux/ **  : it contains the binaries for the Jetson Nano<br>
+**Directory structure**:<br><br>
+**project root**<br>
+    - **bin/aarch64/linux/**  : it contains the binaries for the Jetson Nano<br>
         - **debug**<br>
             - **seqv4l2**      : the executable compiled in debug format<br>
-            - **time_net.tr**t : the parameters for the CNN<br>
+            - **time_net.tr**t : the parameters for the CNN: not included in this repo<br>
             - **frames**       : folder containing the acquired images<br>
         - **release**<br>
             - **seqv4l2**      : the executable compiled in release format<br>
-            - **time_net.trt** : the parameters for the CNN<br>
+            - **time_net.trt** : the parameters for the CNN: not included in this repo<br>
             - **frames**      : folder containing the acquired images<br>
     - **project**<br>
         - **Common**  : NPP common code examples provided by Nvidia<br>
         - **seqval2** : the directory containing the source code for the program<br>
-            - **.vscode** : contains the json files I used for the development with vscode, they are just examples and requires the creation in the user directory of a sh script<containing the launch of the cuda-dbg using sudo privileges.<br>
+            - **.vscode** : contains the json files I used for the development with vscode, they are just examples and requires the creation in the user directory of a sh script containing the launch of the cuda-dbg using sudo privileges.<br>
             - **seqv4l2.c**: contains the main routine that changes the scheduler policy to FIFO and creates the threads and launches them<br>
             - **capturelib.c**: contains the routines to initialize the camera and capture the images and save them<br>
             - **laplacian_filter.cu**: contains the Kernel that converts the yuyv images in grey format and applies the Laplace filter.<br>
